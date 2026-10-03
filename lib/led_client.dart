@@ -11,7 +11,7 @@ const effects = <String, String>{
 
 bool isLocalAddress(String host) {
   final address = InternetAddress.tryParse(host);
-  if (address == null || address.type != InternetAddressType.IPv4) return false;
+  if (address == null || address.type != InternetAddressType.IPv4) { return false; }
   final bytes = address.rawAddress;
   return bytes[0] == 10 ||
       bytes[0] == 127 ||
@@ -140,7 +140,7 @@ class LedClient {
     try {
       socket.broadcastEnabled = true;
       listener = socket.listen((event) {
-        if (event != RawSocketEvent.read) return;
+        if (event != RawSocketEvent.read) { return; }
         Datagram? packet;
         while ((packet = socket.receive()) != null) {
           try {
