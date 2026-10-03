@@ -1,0 +1,65 @@
+name: APK e firmware do protótipo
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.35.4'
+          cache: true
+      - run: bash tool/bootstrap.sh
+      - run: dart format lib test
+      - run: flutter analyze
+      - run: flutter test
+      - run: flutter build apk --release --target-platform android-arm64
+      - run: cp build/app/outputs/flutter-apk/app-release.apk controle-led.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: controle-led-android-arm64
+          path: controle-led.apk
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install platformio==6.1.18
+      - run: pio run --project-dir firmware
+      - uses: actions/upload-artifact@v4
+        with:
+          name: controle-led-esp8266
+          path: firmware/.pio/build/nodemcuv2/firmware.bin
+  deliver:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [android, firmware]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: controle-led-android-arm64
+      - uses: actions/download-artifact@v4
+        with:
+          name: controle-led-esp8266
+      - run: |
+          gh release create "prototype-${GITHUB_RUN_NUMBER}" controle-led.apk firmware.bin \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest \
+            --title "Protótipo 0.1 - build ${GITHUB_RUN_NUMBER}" \
+            --notes "APK Android ARM64 (inclui modo de demonstração) e firmware ESP8266 NodeMCU. Testes automatizados e compilação passaram. Funcionamento na placa, fita e Echo ainda requer validação física. Assinatura de protótipo; atualizações podem exigir desinstalar a versão anterior. Guia de instalação e montagem no README."
+        env:
+          GH_TOKEN: ${{ github.token }}
