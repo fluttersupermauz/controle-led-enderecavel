@@ -102,13 +102,17 @@ class LedClient {
         final bytes = <int>[];
         await for (final part in response) {
           bytes.addAll(part);
-          if (bytes.length > 8192) throw const FormatException('Resposta muito grande.');
+          if (bytes.length > 8192) {
+            throw const FormatException('Resposta muito grande.');
+          }
         }
         if (response.statusCode != 200) {
           throw HttpException('A placa recusou o comando (${response.statusCode}).');
         }
         final result = jsonDecode(utf8.decode(bytes));
-        if (result is! Map<String, dynamic>) throw const FormatException('Resposta inválida.');
+        if (result is! Map<String, dynamic>) {
+          throw const FormatException('Resposta inválida.');
+        }
         return result;
       })().timeout(timeout);
     } finally {

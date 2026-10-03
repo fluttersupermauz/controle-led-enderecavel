@@ -104,7 +104,7 @@ class _ControlPageState extends State<ControlPage> with WidgetsBindingObserver {
     final host = device!.host;
     final token = session;
     // Serialize reads and writes: an older poll must not overwrite a new command.
-    busy = true;
+    setState(() => busy = true);
     try {
       final state = await client.read(host);
       if (!mounted || token != session) return;
@@ -239,7 +239,9 @@ class _ControlPageState extends State<ControlPage> with WidgetsBindingObserver {
             DropdownButtonFormField<String>(initialValue: value.effect, key: ValueKey(value.effect),
               decoration: const InputDecoration(labelText: 'Efeito', border: OutlineInputBorder()),
               items: effects.entries.map((entry) => DropdownMenuItem(value: entry.key, child: Text(entry.value))).toList(),
-              onChanged: canControl ? (effect) { if (effect != null) send(value.copyWith(effect: effect)); } : null),
+              onChanged: canControl ? (effect) {
+                if (effect != null) { send(value.copyWith(effect: effect)); }
+              } : null),
           ])),
           panel(Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const Text('Sua fita'), const SizedBox(height: 6),
