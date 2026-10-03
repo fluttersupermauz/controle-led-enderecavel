@@ -142,6 +142,7 @@ class _ControlPageState extends State<ControlPage> with WidgetsBindingObserver {
   }
 
   void alexaHelp() => showDialog<void>(context: context, builder: (context) => AlertDialog(
+    scrollable: true,
     title: const Text('Alexa no protótipo'),
     content: const Text('O firmware usa Espalexa, que emula uma lâmpada Hue. '
       'Com um Echo compatível no mesmo Wi-Fi, peça: “Alexa, descobrir dispositivos”. '
@@ -236,7 +237,7 @@ class _ControlPageState extends State<ControlPage> with WidgetsBindingObserver {
               } : null),
             if (pendingHue != null) Text('Tonalidade: ${pendingHue!.round()}°'),
             const SizedBox(height: 12),
-            DropdownButtonFormField<String>(initialValue: value.effect, key: ValueKey(value.effect),
+            DropdownButtonFormField<String>(initialValue: value.effect, key: ValueKey(value.effect), isExpanded: true,
               decoration: const InputDecoration(labelText: 'Efeito', border: OutlineInputBorder()),
               items: effects.entries.map((entry) => DropdownMenuItem(value: entry.key, child: Text(entry.value))).toList(),
               onChanged: canControl ? (effect) {

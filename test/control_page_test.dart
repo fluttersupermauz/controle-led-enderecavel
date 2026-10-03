@@ -23,6 +23,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(const LedApp());
+    expect(tester.takeException(), isNull);
     await tester.tap(find.byTooltip('Sobre Alexa'));
     await tester.pumpAndSettle();
     expect(find.text('Alexa no protótipo'), findsOneWidget);
